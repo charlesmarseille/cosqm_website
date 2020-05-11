@@ -50,16 +50,17 @@
     <br>
 
     <!-- choose the date from all days of the year -->
-    <label for="date">2. Choose a date (YYYY-MM-DD):</label>
-    {% if value != '2020-01-01' %}
+    <label for="date">2. Choose 1 or 2 adjacent dates (YYYY-MM-DD):</label>
+    {% if name != '2020-01-01' %}
         <input name="date" value={{ date }}>
+        <input name="date2" value={{ date2 }}>
     {% else %}
-        <input type="submit" value="Make graph">
     {% endif %}
-    <input type='submit' value='GRAPH!'>
+
+    <input type='submit' value='GRAPH'>
     <br>
 
-    <label for="filters">2. Choose the filter colors to display:</label>
+    <label for="filters">3. Choose the filter colors to display:</label>
     <input type="checkbox" checked="checked" name="C" value="1">
     <label for="C"> C</label>
     <input type="checkbox" name="R" value="1">
@@ -71,19 +72,26 @@
     <input type="checkbox" name="Y" value="1">
     <label for="Y"> Y</label>
     </form>
-
     <br>
+
     <!-- Show chosen station and date -->
-    {% if date != '' %}
-    Showing ---> {{ station_name }}{{ date }}{{ filters }}
+    {% if d.graph_state != 0 %}
+        {% if err == 'err1' %}
+            <h2>Date 1 does not exist!</h2>
+        {% elif err == 'err2' %}
+            <h2>Date 2 does not exist!</h2> 
+        {% else %}
+            <h5>Showing -> {{ station_name }}{{ date }} - {{ date2 }}{{ filters }}</h5>
+            <!-- Show graph of the selected station and date -->
+            <img src="static/{{ filename }}" alt="{{ filename }}">
+        {% endif %}
+    {% else %}
     {% endif %}
     <br>
+
+
     <label>(right-click to save figure)</label>
-
-
-    <!-- Show graph of the selected station and date -->
-    <img src="static/{{ filename }}" alt="{{ filename }}">
-
+    <br>
 
 
 
@@ -126,7 +134,7 @@
         }
 
         const imgUrl = '/static/light_pollution.png'
-        const size = "40";
+        const size = "30";
         var obj = new Image(imgUrl, size);
         obj.backgroundImage();
         obj.centerTitle();
