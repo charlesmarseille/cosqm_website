@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html  lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+
+    <title>Flask App </title>
+
+</head>
+
+    <!-- Bootstraps Java Scipts Links -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+
+<body>
+
+    <div class="jumbotron">
+        <h1 class="text-center text-white">CoSQM - Colors of the night -</h1>
+    </div>
+    <br>
+
+    <style>
+        .jumbotron{
+            widows: 150px;
+            height: 100px;
+            justify-content: center;
+        }
+
+        .row{
+            justify-content: center;
+        }
+    </style>
+
+
+
+    <form action="/" method="POST">
+    <!-- choose the station from available cosqm instruments locations -->
+    <label for="station_name">1. Choose a Station:</label>
+    <select name="station_name">
+        <option value="Santa-Cruz_Tenerife">Santa-Cruz_Tenerife</option>
+        <option value="COU-Montsec">COU-Montsec</option>
+        <option value="Izana_AEMET">Izana_AEMET</option>
+        <option value="Observatorio_Teide">Observatorio_Teide</option>
+        <option value="Pico_Teide">Pico_Teide</option>
+        <option value="Saint-Camille">Saint-Camille</option>
+        <option value="UCMadrid">UCMadrid</option>
+    </select>
+    <br>
+
+    <!-- choose the date from all days of the year -->
+    <label for="date">2. Choose a date (YYYY-MM-DD):</label>
+    {% if value != '2020-01-01' %}
+        <input name="date" value={{ date }}>
+    {% else %}
+        <input type="submit" value="Make graph">
+    {% endif %}
+    <input type="submit" value="Save graph">
+    <br>
+
+    <label for="filters">2. Choose the filter colors to display:</label>
+    <input type="checkbox" checked="checked" name="C" value="1">
+    <label for="C"> C</label>
+    <input type="checkbox" name="R" value="1">
+    <label for="R"> R</label>
+    <input type="checkbox" name="G" value="1">
+    <label for="G"> G</label>
+    <input type="checkbox" name="B" value="1">
+    <label for="B"> B</label>
+    <input type="checkbox" name="Y" value="1">
+    <label for="Y"> Y</label>
+    </form>
+
+    <!-- Show chosen station and date -->
+    {% if date %}
+    Showing ---> {{ station_name }}{{ date }}{{ filters }}
+    {% endif %}
+    <br>
+
+    <!-- Show graph of the selected station and date -->
+    <img src="static/{{ filename }}" alt="{{ filename }}">
+
+
+
+
+    <script>
+        class Image{
+
+            constructor(imgUrl, size)
+            {
+                this.imgUrl=imgUrl;
+                this.size=size;
+            }
+
+            backgroundImage()
+            {
+                console.log("inside function ")
+                // Select the Image
+                var img = document.querySelector(".jumbotron");
+
+                // create Css Text
+                var text = "margin:auto;"+
+                    "background-image: url("+this.imgUrl+");" +
+                    "background-size:cover;"+
+                    "opacity:1;"+
+                    "background-blend-mode: darken;"+
+                    "height: "+ this.size + "vh;";
+
+                img.style.cssText =  text;
+            }
+
+            centerTitle()
+            {
+                /*
+                    Center the Title
+                 */
+                var t1 = document.querySelector("#title");
+                t1.classList.add("text-white");
+                t1.classList.add("text-center");
+                t1.classList.add("display-3");
+            }
+        }
+
+        const imgUrl = '/static/light_pollution.png'
+        const size = "40";
+        var obj = new Image(imgUrl, size);
+        obj.backgroundImage();
+        obj.centerTitle();
+    </script>
+
+</body>
+
+
+</html>
