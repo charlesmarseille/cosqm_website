@@ -17,7 +17,7 @@
 <body>
 
     <div class="jumbotron">
-        <h1 class="text-center text-white">CoSQM - Colors of the night -</h1>
+        <h1 class="text-center text-white">CoSQM - Multispectral SQM hack -</h1>
     </div>
     <br>
 
@@ -56,7 +56,7 @@
     {% else %}
         <input type="submit" value="Make graph">
     {% endif %}
-    <input type="submit" value="Save graph">
+    <input type='submit' value='GRAPH!'>
     <br>
 
     <label for="filters">2. Choose the filter colors to display:</label>
@@ -72,11 +72,14 @@
     <label for="Y"> Y</label>
     </form>
 
+    <br>
     <!-- Show chosen station and date -->
-    {% if date %}
+    {% if date != '' %}
     Showing ---> {{ station_name }}{{ date }}{{ filters }}
     {% endif %}
     <br>
+    <label>(right-click to save figure)</label>
+
 
     <!-- Show graph of the selected station and date -->
     <img src="static/{{ filename }}" alt="{{ filename }}">

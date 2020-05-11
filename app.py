@@ -76,7 +76,7 @@ def main():
         plt.close()
 
     else:
-        d = {'date':'2020-01-01', 'station_name':'Saint-Camille'}
+        d = {'date':'2020-01-01', 'station_name':'Santa-Cruz_Tenerife'}
         filename = ''
 
     # Remove cosqm data from OBSAND server
