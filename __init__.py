@@ -2,29 +2,31 @@ from flask import Flask,render_template,url_for,request
 from time import time
 import glob
 import matplotlib.pyplot as plt
+from matplotlib import ticker
 import numpy as np
 import shutil
 import os
 import sys
 import wget
+import pandas as pd
+from datetime import datetime as dt
+
+#Download data beforehand from cosqm network server hosted by Martin Aube, creator of the instrument.
+#where __init__.py lives, run following line in terminal to get all stations data:
+#wget -r --no-parent --accept "*.txt" http://dome.obsand.org:2080/DATA/CoSQM-Network/
+
+
+
 
 app = Flask(__name__)
 
 @app.route('/', methods=["GET", "POST"])
 def main():
-    
-    #print('os path: ', os.path.dirname(sys.executable))
-    
     filters =[]
     d = request.form.to_dict()
     state = bool(d)
 
-    print ('---------')
-    print (d)
-    print ('---------')
-
     # Remove last graph from folder for bypassing cached images in browser and to remove unwanted temp graphs
-    [os.remove(file) for file in glob.glob('/var/www/cosqm_website/cosqm_website/20*.txt')]
     [os.remove(file) for file in glob.glob('/var/www/cosqm_website/cosqm_website/static/20*.png')]
 
     if state:
@@ -37,33 +39,43 @@ def main():
         month = request.form['date'][5:7]
         day = request.form['date'][8:10]
         filename = year + month + day + '_cosqm_graph' + timestamp_no_dot + '.png'
-        print('#get file from Martin Aube copy server')
-        path = 'http://dome.obsand.org:2080/DATA/CoSQM-Network/' + station_name + '/data/'+ year + '/' + month + '/' + year+ '-' + month + '-' + day + '.txt'
-        print('path:',path)
+        filename1 = year + '-' + month + '-' + day + '.txt'
+        print ('pre try-----')
 
         try:
-            filename_wget = wget.download(path)
-            data = np.genfromtxt(filename_wget)
-            #data = np.genfromtxt('/var/www/cosqm_website/cosqm_website/'+filename_wget)
-            print(data)
-            xs = np.arange(data.shape[0])
-            fig,ax = plt.subplots(1, 1, dpi=140, figsize=(8,4))
-            ax.set_title(path[-14:-4])
-            filename1=filename
+            #filename_wget = wget.download(path)
+            paths = sorted(glob.glob('/var/www/cosqm_website/cosqm_website/dome.obsand.org:2080/DATA/CoSQM-Network/'+ station_name 
+                                + '/data/'+ year +'/' + month + '/' + filename1))
+            datas = pd.read_csv(paths[0], sep=" ", header=None)
+            data=np.array(datas)
+            dates_plot = np.array([ dates+','+times for dates, times in data[:,0:2] ])
+            xs = dates_plot
+            fig,ax = plt.subplots(1, 1, dpi=140, figsize=(9,6))
+            fig.subplots_adjust(bottom=0.20)
+            xticks = ticker.MaxNLocator(8)
+            ax.set_title(station_name + '-' + filename1[:-4])
+            ax.tick_params('x',labelrotation=30)
+            ax.xaxis.set_major_locator(xticks)
 
             if d['date2'] != '':
                 try:
+                    print('date2 not empty')
                     year2 = request.form['date2'][:4]
                     month2 = request.form['date2'][5:7]
                     day2 = request.form['date2'][8:10]
-                    filename2 = year2 + month2 + day2 + '_cosqm_graph' + timestamp_no_dot + '.png'
-                    path2 = 'http://dome.obsand.org:2080/DATA/CoSQM-Network/' + station_name + '/data/'+ year2 + '/' + month2 + '/' + year2+ '-' + month2 + '-' + day2 + '.txt'
-                    filename_wget2 = wget.download(path2)
-                    data2 = np.genfromtxt(filename_wget2)
-                    datas = np.vstack((data,data2))
-                    xs = np.arange(datas.shape[0])
-                    data = datas
-                    ax.set_title(path[-14:-4] + ', ' + path2[-14:-4])
+                    filename2 = year2 + '-' + month2 + '-' + day2 + '.txt'
+                    print(year2, month2, day2)
+                    paths = sorted(glob.glob('/var/www/cosqm_website/cosqm_website/dome.obsand.org:2080/DATA/CoSQM-Network/'+ station_name + '/data/*/*/*.txt'))
+                    print (station_name)
+                    datas = [pd.read_csv(path, delim_whitespace=True, header=None, error_bad_lines=False) for path in paths if os.path.getsize(path) >0]
+                    data_all = np.concatenate(datas)
+                    print (data_all.shape)
+                    data = data_all[(data_all[:,0] >= filename1[:-4]) & (data_all[:,0] <= filename2[:-4])]
+                    dates_plot = np.array([ dates+','+times for dates, times in data[:,0:2] ])
+                    print ('dates_plot:', dates_plot)
+                    xs = dates_plot
+                    print (data.shape)
+                    ax.set_title(station_name + '-' + filename1[:-4]+ ', ' + filename2[:-4])
                 except:
                     print ('error 1 : date2 does not exist')
                     plt.close()
@@ -95,13 +107,16 @@ def main():
                 ax.scatter(xs, Ys, color='y', s=1)
             
 
-            ax.set_xlabel('data point (#)')
+            ax.set_xlabel('Date, Time (UTC)')
             ax.set_ylabel('Magnitudes ($Mag/arcsec^2$)')
+            ax.set_ylim(np.min(data[:,7:12]))
             ax.grid(True)
             print('pre savefig')
-            plt.savefig('/var/www/cosqm_website/cosqm_website/static/'+filename)
+            plt.savefig('static/'+filename)
             print('post savefig')
             plt.close()
+
+            np.savetxt('/var/www/cosqm_website/cosqm_website/static/'+filename[:-4]+'.txt', data, fmt='%s')
 
         except Exception as e: 
             print(e)
@@ -112,14 +127,8 @@ def main():
     #When page is first loaded:
     else:
         d = {'date':'2020-01-01','date2':'2020-01-02', 'station_name':'Santa-Cruz_Tenerife', 'graph_state':0, 'C':1, 'R':1, 'G':1, 'B':1, 'Y':1}
-        filename = ''
-
-    # Remove cosqm data from OBSAND server
-    path_rm = 'dome.obsand.org:2080/'
-    if os.path.exists(path_rm):
-        shutil.rmtree(path_rm)
-
-
+        filename = ''  
+    
     return render_template('index.php', d=d, date=d['date'], date2=d['date2'], filename=filename, station_name=d['station_name'], filters=filters)
 
 if __name__ == "__main__":

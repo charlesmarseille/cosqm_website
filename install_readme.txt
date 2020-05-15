@@ -1,5 +1,10 @@
-###Install instructions to setup environment for flask website. Cosqm data is read from the PI server which uploads steadily the data #of cosqms are the globe. Some data is corrupted and is neglected in the final form of the code. This serves as a simple data viewer #for debug purposes if anything goes wrong with the instruments. When the network expands, the additionnal stations will be added to #the website for viewing.
-###
+###----------------------------
+#Install instructions to setup environment for flask website. 
+#Cosqm data is read from the PI server which uploads steadily the data of cosqms are the globe. 
+#Some data is corrupted and is neglected in the final form of the code. 
+#This serves as a simple data viewer for debug purposes if anything goes wrong with the instruments. 
+#When the network expands, the additional stations will be added to #the website for viewing.
+###----------------------------
 
 #(mainly following https://www.digitalocean.com/community/tutorials/how-to-deploy-a-flask-application-on-an-ubuntu-vps with tweaks,
 #perks and special calls (virtualenv selection from .wsgi file) to activate functions. Note that the absolute and relative paths are 
@@ -22,10 +27,10 @@ cd /var/www/cosqm_website/cosqm_website
 
 ##Make virtual environment for python3.6
 virtualenv flaskenv --python=/usr/bin/python3	#confirm this is indeed 3.6 or higher as of tested versions
-source /var/www/cosqm_website/cosqm_website/flaskenv/bin/activate 	#the .wsgi file activates the virtualenv when called by apache2
+source /var/www/cosqm_website/cosqm_website/flaskenv/bin/activate 	#the .wsgi file activates the virtualenv when called by apache2, so here it is just to test the venv
 
 ##install dependencies
-/var/www/cosqm_website/cosqm_website/flaskenv/bin/python3 -m pip install virtualenv flask matplotlib pytest-shutil wget
+/var/www/cosqm_website/cosqm_website/flaskenv/bin/python3 -m pip install virtualenv flask matplotlib pytest-shutil wget pandas
 
 
 ##create wsgi server app setting file##
